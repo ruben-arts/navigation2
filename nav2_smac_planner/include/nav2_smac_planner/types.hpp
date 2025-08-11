@@ -51,6 +51,7 @@ struct SearchInfo
   bool allow_primitive_interpolation{false};
   bool downsample_obstacle_heuristic{true};
   bool use_quadratic_cost_penalty{false};
+  bool use_swept_collision_checker{false};
 };
 
 /**

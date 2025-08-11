@@ -26,6 +26,7 @@ namespace nav2_smac_planner
 GridCollisionChecker::GridCollisionChecker(
   std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros,
   unsigned int num_quantizations,
+  bool use_swept_collision_checker,
   nav2::LifecycleNode::SharedPtr node)
 : FootprintCollisionChecker(costmap_ros ? costmap_ros->getCostmap() : nullptr)
 {
@@ -44,6 +45,8 @@ GridCollisionChecker::GridCollisionChecker(
   for (unsigned int i = 0; i != num_quantizations; i++) {
     angles_.push_back(bin_size * i);
   }
+
+  use_swept_collision_checker_ = use_swept_collision_checker;
 }
 
 // GridCollisionChecker::GridCollisionChecker(
@@ -220,12 +223,12 @@ bool GridCollisionChecker::inCollision(
   unsigned int mx1 = static_cast<unsigned int>(x1 + 0.5f);
   unsigned int my1 = static_cast<unsigned int>(y1 + 0.5f);
   float start_cost = static_cast<float>(costmap_->getCost(mx0, my0));
-  float end_cost = static_cast<float>(costmap_->getCost(mx1, my1));
+  center_cost_ = static_cast<float>(costmap_->getCost(mx1, my1));
 
   bool parent_safe = possible_collision_cost_ > 0.0f &&
     start_cost < possible_collision_cost_;
   bool child_safe = possible_collision_cost_ > 0.0f &&
-    end_cost < possible_collision_cost_;
+    center_cost_ < possible_collision_cost_;
 
   if (parent_safe && child_safe) {
     return inCollision(x1, y1, theta1, traverse_unknown);
@@ -234,12 +237,12 @@ bool GridCollisionChecker::inCollision(
   float dx = x1 - x0;
   float dy = y1 - y0;
   float distance = hypotf(dx, dy);
-  float arc = fabsf(dtheta) * min_turning_radius;
+  float arc = fabs(dtheta) * min_turning_radius;
   int steps = static_cast<int>(ceilf(std::max(std::max(distance, arc), 1.0f)));
 
   std::unordered_set<unsigned int> cells;
   float cx = 0.0f, cy = 0.0f;
-  const bool use_arc = fabsf(dtheta) > 1e-3f;
+  const bool use_arc = fabs(dtheta) > 1e-3f;
   if (use_arc) {
     if (dtheta > 0.0f) {
       cx = x0 - min_turning_radius * sin(start_theta);
@@ -268,15 +271,14 @@ bool GridCollisionChecker::inCollision(
       theta = start_theta;
     }
 
-    while (theta < 0.0f) {
+    if (theta < 0.0f) {
       theta += 2.0f * static_cast<float>(M_PI);
     }
-    while (theta >= 2.0f * static_cast<float>(M_PI)) {
+    if (theta >= 2.0f * static_cast<float>(M_PI)) {
       theta -= 2.0f * static_cast<float>(M_PI);
     }
     unsigned int angle_bin = static_cast<unsigned int>(
-      theta / (2.0f * static_cast<float>(M_PI)) * angles_.size());
-    angle_bin %= angles_.size();
+      theta / (2.0f * static_cast<float>(M_PI)) * angles_.size()) % angles_.size();
 
     if (footprint_is_radius_) {
       if (outsideRange(costmap_->getSizeInCellsX(), xi) ||
@@ -289,16 +291,6 @@ bool GridCollisionChecker::inCollision(
       cells.insert(my * size_x + mx);
       continue;
     }
-
-    // Always include center cell
-    if (outsideRange(costmap_->getSizeInCellsX(), xi) ||
-      outsideRange(costmap_->getSizeInCellsY(), yi))
-    {
-      return true;
-    }
-    unsigned int mx = static_cast<unsigned int>(xi + 0.5f);
-    unsigned int my = static_cast<unsigned int>(yi + 0.5f);
-    cells.insert(my * size_x + mx);
 
     double wx, wy;
     costmap_->mapToWorld(static_cast<double>(xi), static_cast<double>(yi), wx, wy);
@@ -330,21 +322,16 @@ bool GridCollisionChecker::inCollision(
     }
   }
 
-  float max_cost = 0.0f;
   for (auto index : cells) {
-    center_cost_ = static_cast<float>(costmap_->getCost(index));
-    if (center_cost_ == UNKNOWN_COST && traverse_unknown) {
+    float cost = static_cast<float>(costmap_->getCost(index));
+    if (cost == UNKNOWN_COST && traverse_unknown) {
       continue;
     }
-    if (center_cost_ >= INSCRIBED_COST) {
+    if (cost >= OCCUPIED_COST) {
       return true;
-    }
-    if (center_cost_ > max_cost) {
-      max_cost = center_cost_;
     }
   }
 
-  center_cost_ = max_cost;
   return false;
 }
 

@@ -43,7 +43,6 @@ LookupTable NodeHybrid::dist_heuristic_lookup_table;
 std::shared_ptr<nav2_costmap_2d::Costmap2DROS> NodeHybrid::costmap_ros = nullptr;
 
 ObstacleHeuristicQueue NodeHybrid::obstacle_heuristic_queue;
-bool NodeHybrid::use_swept_collision_checker = false;
 
 // Each of these tables are the projected motion models through
 // time and space applied to the search on the current node in
@@ -383,7 +382,7 @@ bool NodeHybrid::isNodeValid(
     return _is_node_valid;
   }
 
-  if (use_swept_collision_checker && parent) {
+  if (collision_checker->useSweptCollisionChecker() && parent) {
     _is_node_valid = !collision_checker->inCollision(
       parent->pose.x, parent->pose.y, parent->pose.theta,
       this->pose.x, this->pose.y, this->pose.theta,

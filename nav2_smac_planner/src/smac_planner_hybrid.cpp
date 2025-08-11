@@ -32,12 +32,11 @@ using std::placeholders::_1;
 
 SmacPlannerHybrid::SmacPlannerHybrid()
 : _a_star(nullptr),
-  _collision_checker(nullptr, 1, nullptr),
+  _collision_checker(nullptr, 1, false, nullptr),
   _smoother(nullptr),
   _costmap(nullptr),
   _costmap_ros(nullptr),
-  _costmap_downsampler(nullptr),
-  _use_swept_collision_checker(false)
+  _costmap_downsampler(nullptr)
 {
 }
 
@@ -106,8 +105,8 @@ void SmacPlannerHybrid::configure(
   node->get_parameter(name + ".minimum_turning_radius", _minimum_turning_radius_global_coords);
   nav2::declare_parameter_if_not_declared(
     node, name + ".use_swept_collision_check", rclcpp::ParameterValue(false));
-  node->get_parameter(name + ".use_swept_collision_check", _use_swept_collision_checker);
-  NodeHybrid::use_swept_collision_checker = _use_swept_collision_checker;
+  node->get_parameter(
+    name + ".use_swept_collision_check", _search_info.use_swept_collision_checker);
   nav2::declare_parameter_if_not_declared(
     node, name + ".allow_primitive_interpolation", rclcpp::ParameterValue(false));
   node->get_parameter(
@@ -260,7 +259,8 @@ void SmacPlannerHybrid::configure(
   }
 
   // Initialize collision checker
-  _collision_checker = GridCollisionChecker(_costmap_ros, _angle_quantizations, node);
+  _collision_checker = GridCollisionChecker(
+    _costmap_ros, _angle_quantizations, _search_info.use_swept_collision_checker, node);
   _collision_checker.setFootprint(
     _costmap_ros->getRobotFootprint(),
     _costmap_ros->getUseRadius(),
@@ -709,8 +709,8 @@ SmacPlannerHybrid::dynamicParametersCallback(std::vector<rclcpp::Parameter> para
         _search_info.analytic_expansion_max_cost_override = parameter.as_bool();
         reinit_a_star = true;
       } else if (param_name == _name + ".use_swept_collision_check") {
-        _use_swept_collision_checker = parameter.as_bool();
-        NodeHybrid::use_swept_collision_checker = _use_swept_collision_checker;
+        _search_info.use_swept_collision_checker = parameter.as_bool();
+        reinit_collision_checker = true;
       }
     } else if (param_type == ParameterType::PARAMETER_INTEGER) {
       if (param_name == _name + ".downsampling_factor") {
@@ -853,7 +853,8 @@ SmacPlannerHybrid::dynamicParametersCallback(std::vector<rclcpp::Parameter> para
 
     // Re-Initialize collision checker
     if (reinit_collision_checker) {
-      _collision_checker = GridCollisionChecker(_costmap_ros, _angle_quantizations, node);
+      _collision_checker = GridCollisionChecker(
+        _costmap_ros, _angle_quantizations, _search_info.use_swept_collision_checker, node);
       _collision_checker.setFootprint(
         _costmap_ros->getRobotFootprint(),
         _costmap_ros->getUseRadius(),

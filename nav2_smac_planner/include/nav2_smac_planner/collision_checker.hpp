@@ -39,12 +39,14 @@ public:
    * for use when regular bin intervals are appropriate
    * @param costmap The costmap to collision check against
    * @param num_quantizations The number of quantizations to precompute footprint
+   * @param use_swept_collision_checker Whether or not to use swept collision checking
    * @param node Node to extract clock and logger from
    * orientations for to speed up collision checking
    */
   GridCollisionChecker(
     std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap,
     unsigned int num_quantizations,
+    bool use_swept_collision_checker,
     nav2::LifecycleNode::SharedPtr node);
 
   /**
@@ -117,6 +119,15 @@ public:
   float getCost();
 
   /**
+   * @brief Get whether or not the collision checker is using swept collision checking
+   * @return true if using swept collision checking, false otherwise
+   */
+  bool useSweptCollisionChecker() const
+  {
+    return use_swept_collision_checker_;
+  }
+
+  /**
    * @brief Get the angles of the precomputed footprint orientations
    * @return the ordered vector of angles corresponding to footprints
    */
@@ -148,6 +159,7 @@ protected:
   bool footprint_is_radius_{false};
   std::vector<float> angles_;
   float possible_collision_cost_{-1};
+  bool use_swept_collision_checker_{false};
   rclcpp::Logger logger_{rclcpp::get_logger("SmacPlannerCollisionChecker")};
   rclcpp::Clock::SharedPtr clock_;
 };

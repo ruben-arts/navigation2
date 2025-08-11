@@ -30,10 +30,9 @@ using rcl_interfaces::msg::ParameterType;
 
 SmacPlannerLattice::SmacPlannerLattice()
 : _a_star(nullptr),
-  _collision_checker(nullptr, 1, nullptr),
+  _collision_checker(nullptr, 1, false, nullptr),
   _smoother(nullptr),
-  _costmap(nullptr),
-  _use_swept_collision_checker(false)
+  _costmap(nullptr)
 {
 }
 
@@ -86,8 +85,7 @@ void SmacPlannerLattice::configure(
   nav2::declare_parameter_if_not_declared(
     node, name + ".use_swept_collision_check", rclcpp::ParameterValue(false));
   node->get_parameter(
-    name + ".use_swept_collision_check", _use_swept_collision_checker);
-  NodeLattice::use_swept_collision_checker = _use_swept_collision_checker;
+    name + ".use_swept_collision_check", _search_info.use_swept_collision_checker);
 
   // Default to a well rounded model: 16 bin, 0.4m turning radius, ackermann model
   nav2::declare_parameter_if_not_declared(
@@ -219,7 +217,8 @@ void SmacPlannerLattice::configure(
   // increments causing "wobbly" checks that could cause larger robots to virtually show collisions
   // in valid configurations. This approximation helps to bound orientation error for all checks
   // in exchange for slight inaccuracies in the collision headings in terminal search states.
-  _collision_checker = GridCollisionChecker(_costmap_ros, 72u, node);
+  _collision_checker = GridCollisionChecker(
+    _costmap_ros, 72u, _search_info.use_swept_collision_checker, node);
   _collision_checker.setFootprint(
     costmap_ros->getRobotFootprint(),
     costmap_ros->getUseRadius(),
@@ -549,6 +548,7 @@ SmacPlannerLattice::dynamicParametersCallback(std::vector<rclcpp::Parameter> par
 
   bool reinit_a_star = false;
   bool reinit_smoother = false;
+  bool reinit_collision_checker = false;
 
   for (auto parameter : parameters) {
     const auto & param_type = parameter.get_type();
@@ -599,8 +599,8 @@ SmacPlannerLattice::dynamicParametersCallback(std::vector<rclcpp::Parameter> par
         reinit_a_star = true;
         _search_info.cache_obstacle_heuristic = parameter.as_bool();
       } else if (param_name == _name + ".use_swept_collision_check") {
-        _use_swept_collision_checker = parameter.as_bool();
-        NodeLattice::use_swept_collision_checker = _use_swept_collision_checker;
+        _search_info.use_swept_collision_checker = parameter.as_bool();
+        reinit_collision_checker = true;
       } else if (param_name == _name + ".allow_reverse_expansion") {
         reinit_a_star = true;
         _search_info.allow_reverse_expansion = parameter.as_bool();
@@ -692,7 +692,7 @@ SmacPlannerLattice::dynamicParametersCallback(std::vector<rclcpp::Parameter> par
   }
 
   // Re-init if needed with mutex lock (to avoid re-init while creating a plan)
-  if (reinit_a_star || reinit_smoother) {
+  if (reinit_a_star || reinit_smoother || reinit_collision_checker) {
     // convert to grid coordinates
     _search_info.minimum_turning_radius =
       _metadata.min_turning_radius / (_costmap->getResolution());
@@ -719,6 +719,17 @@ SmacPlannerLattice::dynamicParametersCallback(std::vector<rclcpp::Parameter> par
       params.get(node, _name);
       _smoother = std::make_unique<Smoother>(params);
       _smoother->initialize(_metadata.min_turning_radius);
+    }
+
+    // Re-Initialize collision checker
+    if (reinit_collision_checker) {
+      auto node = _node.lock();
+      _collision_checker = GridCollisionChecker(
+        _costmap_ros, 72u, _search_info.use_swept_collision_checker, node);
+      _collision_checker.setFootprint(
+        _costmap_ros->getRobotFootprint(),
+        _costmap_ros->getUseRadius(),
+        findCircumscribedCost(_costmap_ros));
     }
 
     // Re-Initialize A* template
