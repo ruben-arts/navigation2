@@ -195,18 +195,8 @@ bool GridCollisionChecker::inCollision(
   const float & x0, const float & y0, const float & theta0,
   const float & x1, const float & y1, const float & theta1,
   const bool & traverse_unknown,
-  const float & min_turning_radius)
+  const float & min_turning_radius) // <-- TOOD apply to Lattice?
 {
-  // Convert angle bins to radians
-  float start_theta = angles_[static_cast<unsigned int>(theta0)];
-  float end_theta = angles_[static_cast<unsigned int>(theta1)];
-  float dtheta = end_theta - start_theta;
-  if (dtheta > M_PI) {
-    dtheta -= 2.0f * static_cast<float>(M_PI);
-  } else if (dtheta < -M_PI) {
-    dtheta += 2.0f * static_cast<float>(M_PI);
-  }
-
   // Quick checks to see if sweeping is necessary. If both poses are well
   // clear of obstacles, fall back to the single pose check on the child node
   const unsigned int size_x = costmap_->getSizeInCellsX();
@@ -225,20 +215,29 @@ bool GridCollisionChecker::inCollision(
   float start_cost = static_cast<float>(costmap_->getCost(mx0, my0));
   center_cost_ = static_cast<float>(costmap_->getCost(mx1, my1));
 
-  bool parent_safe = possible_collision_cost_ > 0.0f &&
-    start_cost < possible_collision_cost_;
-  bool child_safe = possible_collision_cost_ > 0.0f &&
-    center_cost_ < possible_collision_cost_;
-
-  if (parent_safe && child_safe) {
+  bool parent_safe = start_cost < possible_collision_cost_;
+  bool child_safe = center_cost_ < possible_collision_cost_;
+  if (possible_collision_cost_ > 0.0f && parent_safe && child_safe) {
     return inCollision(x1, y1, theta1, traverse_unknown);
+  }
+
+  // If either are close to obstacles, we need to do a swept check:
+
+  // Convert angle bins to radians
+  float start_theta = angles_[static_cast<unsigned int>(theta0)];
+  float end_theta = angles_[static_cast<unsigned int>(theta1)];
+  float dtheta = end_theta - start_theta;
+  if (dtheta > M_PI) {
+    dtheta -= 2.0f * static_cast<float>(M_PI);
+  } else if (dtheta < -M_PI) {
+    dtheta += 2.0f * static_cast<float>(M_PI);
   }
 
   float dx = x1 - x0;
   float dy = y1 - y0;
   float distance = hypotf(dx, dy);
   float arc = fabs(dtheta) * min_turning_radius;
-  int steps = static_cast<int>(ceilf(std::max(std::max(distance, arc), 1.0f)));
+  int steps = static_cast<int>(ceilf(std::max(std::max(distance, arc), 1.0f))); // <-- TODO: increase the resolution?
 
   std::unordered_set<unsigned int> cells;
   float cx = 0.0f, cy = 0.0f;
