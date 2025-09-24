@@ -70,3 +70,6 @@ Session.vim
 
 # Vim Temporary
 .netrwhist
+# pixi environments
+.pixi/*
+!.pixi/config.toml
