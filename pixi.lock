@@ -745,6 +745,9 @@ environments:
       - conda: https://prefix.dev/conda-forge/linux-64/xorg-libxxf86vm-1.1.6-hb9d3cd8_0.conda
       - conda: https://prefix.dev/conda-forge/linux-64/xorg-xf86vidmodeproto-2.3.1-hb9d3cd8_1005.conda
       - conda: https://prefix.dev/conda-forge/linux-64/xorg-xorgproto-2024.1-hb9d3cd8_1.conda
+      - conda: https://prefix.dev/conda-forge/linux-64/xsimd-10.0.0-h924138e_0.conda
+      - conda: https://prefix.dev/conda-forge/linux-64/xtensor-0.24.7-h00ab1b0_0.conda
+      - conda: https://prefix.dev/conda-forge/linux-64/xtl-0.7.7-h00ab1b0_0.conda
       - conda: https://prefix.dev/conda-forge/linux-64/xz-5.8.1-hbcc6ac9_2.conda
       - conda: https://prefix.dev/conda-forge/linux-64/xz-gpl-tools-5.8.1-hbcc6ac9_2.conda
       - conda: https://prefix.dev/conda-forge/linux-64/xz-tools-5.8.1-hb9d3cd8_2.conda
@@ -12677,6 +12680,39 @@ packages:
   license_family: MIT
   size: 565425
   timestamp: 1726846388217
+- conda: https://prefix.dev/conda-forge/linux-64/xsimd-10.0.0-h924138e_0.conda
+  sha256: 45af85547aa63f1e6950c993f5f58d9fc70c83de6177ec2bc0088e8c2356fb14
+  md5: 86cbd6812604152d4bf7c2fca4fb5d65
+  depends:
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
+  license: BSD-3-Clause
+  license_family: BSD
+  size: 107481
+  timestamp: 1669823681793
+- conda: https://prefix.dev/conda-forge/linux-64/xtensor-0.24.7-h00ab1b0_0.conda
+  sha256: 2be174241deec5e9bff266578527a9d29d9c75ee4d8ec12373b65315c8cd6d07
+  md5: d012f51415e875572c5a87b99c89ab94
+  depends:
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
+  - xtl >=0.7,<0.8
+  constrains:
+  - xsimd >=10.0.0,<11
+  license: BSD-3-Clause
+  license_family: BSD
+  size: 201911
+  timestamp: 1695065278409
+- conda: https://prefix.dev/conda-forge/linux-64/xtl-0.7.7-h00ab1b0_0.conda
+  sha256: 25b2bce3198aedc064a5c89e1542ca128ed8f852cc4fcd05d0f6add4d8a18561
+  md5: 620caa57497222ec99f3ad555a1b679d
+  depends:
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
+  license: BSD-3-Clause
+  license_family: BSD
+  size: 98290
+  timestamp: 1703254418240
 - conda: https://prefix.dev/conda-forge/linux-64/xz-5.8.1-hbcc6ac9_2.conda
   sha256: 802725371682ea06053971db5b4fb7fbbcaee9cb1804ec688f55e51d74660617
   md5: 68eae977d7d1196d32b636a026dc015d

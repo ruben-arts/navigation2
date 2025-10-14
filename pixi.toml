@@ -44,7 +44,6 @@ ros-jazzy-nav2-msgs = {path = "nav2_msgs"}
 ros-jazzy-nav2-navfn-planner = {path = "nav2_navfn_planner"}
 ros-jazzy-nav2-planner = {path = "nav2_planner"}
 ros-jazzy-nav2-regulated-pure-pursuit-controller = {path = "nav2_regulated_pure_pursuit_controller"}
-ros-jazzy-nav2-ros-common = {path = "nav2_ros_common"}
 ros-jazzy-nav2-rotation-shim-controller = {path = "nav2_rotation_shim_controller"}
 ros-jazzy-nav2-route = {path = "nav2_route"}
 ros-jazzy-nav2-rviz-plugins = {path = "nav2_rviz_plugins"}
