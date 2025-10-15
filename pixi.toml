@@ -1,6 +1,6 @@
 [workspace]
 channels = ["https://prefix.dev/robostack-jazzy", "https://prefix.dev/conda-forge"]
-platforms = ["linux-64"]
+platforms = ["linux-64", "osx-arm64"]
 preview = ["pixi-build"]
 
 [tasks]
@@ -56,6 +56,10 @@ ros-jazzy-nav2-waypoint-follower = {path = "nav2_waypoint_follower"}
 [dependencies]
 colcon-ros = ">=0.5.0,<0.6"
 setuptools = "<72.0.0"
-gcc_linux-64 = "<15"
 cmake = "<4"
 nanoflann = ">=1.6.1,<2"
+ros-jazzy-desktop = ">=0.11.0,<0.12"
+ros-jazzy-turtlebot3-gazebo = ">=2.3.7,<3"
+
+[target.linux-64.dependencies]
+gcc_linux-64 = "<15"
