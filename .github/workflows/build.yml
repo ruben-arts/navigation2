@@ -25,4 +25,5 @@ jobs:
           pixi-version: latest
 
       - name: Build
-        run: pixi run build
+        # Trick to use a specific build of pixi
+        run: pixi exec -c https://prefix.dev/ruben-arts pixi run build
