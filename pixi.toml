@@ -1,10 +1,10 @@
 [workspace]
 channels = ["https://prefix.dev/robostack-kilted", "https://prefix.dev/conda-forge"]
-platforms = ["linux-64", "osx-arm64"]
+platforms = ["linux-64", "osx-arm64", "win-64"]
 preview = ["pixi-build"]
 
 [tasks]
-build = "colcon build --cmake-force-configure --cmake-args -DBUILD_TESTING=OFF -DCMAKE_CXX_FLAGS=-Wno-error "
+build = "colcon build --event-handlers console_direct+ --cmake-force-configure --cmake-args -DBUILD_TESTING=OFF -DCMAKE_CXX_FLAGS=-Wno-error "
 test = "colcon test"
 
 [develop]
@@ -42,7 +42,15 @@ ros-kilted-nav2-planner = {path = "nav2_planner"}
 ros-kilted-nav2-regulated-pure-pursuit-controller = {path = "nav2_regulated_pure_pursuit_controller"}
 ros-kilted-nav2-rotation-shim-controller = {path = "nav2_rotation_shim_controller"}
 ros-kilted-nav2-route = {path = "nav2_route"}
-ros-kilted-nav2-rviz-plugins = {path = "nav2_rviz_plugins"}
+# [ 66%] Linking CXX shared library libnav2_rviz_plugins.so
+# /root/navigation2/.pixi/envs/default/bin/../lib/gcc/x86_64-conda-linux-gnu/14.3.0/../../../../x86_64-conda-linux-gnu/bin/ld: cannot find /root/navigation2/.pixi/envs/default/opt/rviz_ogre_vendor/lib/libOgreOverlay.so: No such file or directory
+# /root/navigation2/.pixi/envs/default/bin/../lib/gcc/x86_64-conda-linux-gnu/14.3.0/../../../../x86_64-conda-linux-gnu/bin/ld: cannot find /root/navigation2/.pixi/envs/default/opt/rviz_ogre_vendor/lib/libOgreMain.so: No such file or directory
+# collect2: error: ld returned 1 exit status
+# gmake[2]: *** [CMakeFiles/nav2_rviz_plugins.dir/build.make:658: libnav2_rviz_plugins.so] Error 1
+# gmake[1]: *** [CMakeFiles/Makefile2:156: CMakeFiles/nav2_rviz_plugins.dir/all] Error 2
+# gmake: *** [Makefile:146: all] Error 2
+# Failed   <<< nav2_rviz_plugins [41.2s, exited with code 2]
+# ros-kilted-nav2-rviz-plugins = {path = "nav2_rviz_plugins"}
 ros-kilted-nav2-simple-commander = {path = "nav2_simple_commander"}
 ros-kilted-nav2-smac-planner = {path = "nav2_smac_planner"}
 ros-kilted-nav2-smoother = {path = "nav2_smoother"}
