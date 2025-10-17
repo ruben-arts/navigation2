@@ -47,6 +47,9 @@ target_link_libraries(${library_name} PRIVATE
   rclcpp_components::component
   rclcpp_lifecycle::rclcpp_lifecycle
 )
+if(APPLE)
+  target_compile_definitions(${library_name} PRIVATE _LIBCPP_DISABLE_AVAILABILITY)
+endif()
 
 add_executable(${executable_name}
   src/main.cpp
@@ -84,6 +87,9 @@ target_link_libraries(nav2_navigate_to_pose_navigator PRIVATE
   pluginlib::pluginlib
   rclcpp_lifecycle::rclcpp_lifecycle
 )
+if(APPLE)
+  target_compile_definitions(nav2_navigate_to_pose_navigator PRIVATE _LIBCPP_DISABLE_AVAILABILITY)
+endif()
 
 add_library(nav2_navigate_through_poses SHARED src/navigators/navigate_through_poses.cpp)
 target_include_directories(nav2_navigate_through_poses
@@ -106,6 +112,9 @@ target_link_libraries(nav2_navigate_through_poses PRIVATE
   pluginlib::pluginlib
   rclcpp_lifecycle::rclcpp_lifecycle
 )
+if(APPLE)
+  target_compile_definitions(nav2_navigate_through_poses PRIVATE _LIBCPP_DISABLE_AVAILABILITY)
+endif()
 
 pluginlib_export_plugin_description_file(nav2_core navigator_plugins.xml)
 rclcpp_components_register_nodes(${library_name} "nav2_bt_navigator::BtNavigator")
