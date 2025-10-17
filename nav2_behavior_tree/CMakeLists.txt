@@ -22,6 +22,10 @@ nav2_package()
 
 add_compile_options(-Wno-shadow) # Delete after https://github.com/BehaviorTree/BehaviorTree.CPP/issues/811 is released
 
+if(APPLE)
+  add_compile_definitions(_LIBCPP_DISABLE_AVAILABILITY)
+endif()
+
 include_directories(
   include
 )

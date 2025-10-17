@@ -16,11 +16,14 @@ find_package(std_srvs REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(bondcpp REQUIRED)
 find_package(diagnostic_updater REQUIRED)
+find_package(orocos_kdl_vendor REQUIRED)
 
 nav2_package()
 
 include_directories(
   include
+  ${orocos_kdl_INCLUDE_DIRS}
+  ${diagnostic_updater_INCLUDE_DIRS}
 )
 
 set(library_name ${PROJECT_NAME}_core)
@@ -44,6 +47,7 @@ set(dependencies
   tf2_geometry_msgs
   bondcpp
   diagnostic_updater
+  orocos_kdl_vendor
 )
 
 ament_target_dependencies(${library_name}

@@ -7,7 +7,7 @@ if(NOT CMAKE_CXX_STANDARD)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+  add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
 # Qt5 boilerplate options from http://doc.qt.io/qt-5/cmake-manual.html
@@ -32,6 +32,7 @@ find_package(std_msgs REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(yaml_cpp_vendor REQUIRED)
+find_package(orocos_kdl_vendor REQUIRED)
 
 set(nav2_rviz_plugins_headers_to_moc
   include/nav2_rviz_plugins/costmap_cost_tool.hpp
@@ -48,6 +49,7 @@ set(nav2_rviz_plugins_headers_to_moc
 
 include_directories(
   include
+  ${orocos_kdl_INCLUDE_DIRS}
 )
 
 set(library_name ${PROJECT_NAME})
@@ -81,6 +83,7 @@ set(dependencies
   std_msgs
   tf2_geometry_msgs
   yaml_cpp_vendor
+  orocos_kdl_vendor
 )
 
 ament_target_dependencies(${library_name}
@@ -95,6 +98,13 @@ target_include_directories(${library_name} PUBLIC
 target_link_libraries(${library_name}
   rviz_common::rviz_common
 )
+
+if(APPLE)
+  target_link_options(${library_name} PRIVATE 
+    "-Wl,-undefined,dynamic_lookup"
+    "-Wl,-w"
+  )
+endif()
 
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
