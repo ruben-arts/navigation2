@@ -58,8 +58,8 @@ colcon-ros = ">=0.5.0,<0.6"
 setuptools = "<72.0.0"
 cmake = "<4"
 nanoflann = ">=1.6.1,<2"
-ros-jazzy-desktop = ">=0.11.0,<0.12"
-ros-jazzy-turtlebot3-gazebo = ">=2.3.7,<3"
+# ros-jazzy-desktop = ">=0.11.0,<0.12"
+# ros-jazzy-turtlebot3-gazebo = ">=2.3.7,<3"
 
 [target.linux-64.dependencies]
 gcc_linux-64 = "<15"
