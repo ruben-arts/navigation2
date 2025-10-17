@@ -31,6 +31,9 @@ target_link_libraries(opennav_dock_action_bt_node PUBLIC
   nav2_ros_common::nav2_ros_common
   ${nav2_msgs_TARGETS}
 )
+if(APPLE)
+  target_compile_definitions(opennav_dock_action_bt_node PRIVATE _LIBCPP_DISABLE_AVAILABILITY)
+endif()
 
 add_library(opennav_undock_action_bt_node SHARED src/undock_robot.cpp)
 target_include_directories(opennav_undock_action_bt_node
@@ -46,6 +49,9 @@ target_link_libraries(opennav_undock_action_bt_node PUBLIC
   nav2_ros_common::nav2_ros_common
   ${nav2_msgs_TARGETS}
 )
+if(APPLE)
+  target_compile_definitions(opennav_undock_action_bt_node PRIVATE _LIBCPP_DISABLE_AVAILABILITY)
+endif()
 
 install(TARGETS opennav_dock_action_bt_node opennav_undock_action_bt_node
   EXPORT ${PROJECT_NAME}

@@ -289,6 +289,9 @@ foreach(bt_plugin ${plugin_libs})
     nav2_ros_common::nav2_ros_common
   )
   target_compile_definitions(${bt_plugin} PRIVATE BT_PLUGIN_EXPORT)
+  if(APPLE)
+    target_compile_definitions(${bt_plugin} PRIVATE _LIBCPP_DISABLE_AVAILABILITY)
+  endif()
 endforeach()
 
 install(TARGETS ${library_name} ${plugin_libs}

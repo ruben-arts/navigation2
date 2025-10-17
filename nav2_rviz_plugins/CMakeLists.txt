@@ -128,6 +128,12 @@ target_link_libraries(${library_name} PRIVATE
   yaml-cpp::yaml-cpp
 )
 
+if(APPLE)
+  target_link_options(${library_name} PRIVATE
+    -Wl,-undefined,dynamic_lookup
+  )
+endif()
+
 pluginlib_export_plugin_description_file(rviz_common plugins_description.xml)
 
 install(
