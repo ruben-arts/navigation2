@@ -33,6 +33,10 @@ add_executable(${executable_name}
 
 set(library_name ${executable_name}_core)
 
+if(APPLE)
+  add_compile_definitions(_LIBCPP_DISABLE_AVAILABILITY)
+endif()
+
 set(dependencies
   rclcpp
   rclcpp_action

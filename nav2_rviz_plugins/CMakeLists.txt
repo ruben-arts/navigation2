@@ -99,6 +99,13 @@ target_link_libraries(${library_name}
   rviz_common::rviz_common
 )
 
+if(APPLE)
+  target_link_options(${library_name} PRIVATE 
+    "-Wl,-undefined,dynamic_lookup"
+    "-Wl,-w"
+  )
+endif()
+
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
 # TODO: Make this specific to this project (not rviz default plugins)
