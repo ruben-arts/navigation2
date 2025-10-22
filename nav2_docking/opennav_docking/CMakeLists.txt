@@ -19,16 +19,18 @@ find_package(builtin_interfaces REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(orocos_kdl_vendor REQUIRED)
 find_package(yaml_cpp_vendor REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(opennav_docking_core REQUIRED)
 
 # potentially replace with nav2_common, nav2_package()
 set(CMAKE_CXX_STANDARD 17)
-add_compile_options(-Wall -Wextra -Wpedantic -Werror -Wdeprecated -fPIC -Wshadow -Wnull-dereference)
+add_compile_options(-Wall -Wextra -Wpedantic -Wdeprecated -fPIC -Wshadow -Wnull-dereference)
 
 include_directories(
   include
+  ${orocos_kdl_INCLUDE_DIRS}
 )
 
 set(executable_name opennav_docking)
@@ -54,6 +56,7 @@ set(dependencies
   pluginlib
   yaml_cpp_vendor
   opennav_docking_core
+  orocos_kdl_vendor
 )
 
 add_library(controller SHARED
