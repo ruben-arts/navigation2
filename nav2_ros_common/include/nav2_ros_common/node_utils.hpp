@@ -337,6 +337,7 @@ inline std::string get_plugin_type_param(
  */
 inline void setSoftRealTimePriority()
 {
+ #ifdef __linux__
   sched_param sch;
   sch.sched_priority = 49;
   if (sched_setscheduler(0, SCHED_FIFO, &sch) == -1) {
@@ -346,8 +347,25 @@ inline void setSoftRealTimePriority()
       "realtime prioritization! Error: ");
     throw std::runtime_error(errmsg + std::strerror(errno));
   }
-}
+#elif __APPLE__
+  // macOS uses different thread scheduling APIs
+  // This is typically not needed for most applications on macOS
+  // and requires different privileges
+  struct sched_param param;
+  param.sched_priority = sched_get_priority_max(SCHED_FIFO) - 1;
 
+  if (pthread_setschedparam(pthread_self(), SCHED_FIFO, &param) != 0) {
+    // On macOS, this typically fails without special entitlements
+    // Log a warning but don't throw - most applications work fine without RT priority
+    std::cerr << "Warning: Cannot set real-time thread priority on macOS. "
+              << "This is expected and usually not required." << std::endl;
+  }
+#else
+  // Other platforms - do nothing
+  std::cerr << "Warning: Real-time thread priority setting not supported on this platform."
+            << std::endl;
+#endif
+}
 template<typename InterfaceT>
 inline void setIntrospectionMode(
   InterfaceT & ros_interface,
