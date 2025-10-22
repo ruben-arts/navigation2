@@ -23,7 +23,10 @@ find_package(nav2_ros_common REQUIRED)
 find_package(yaml_cpp_vendor REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
-pkg_search_module(UUID REQUIRED uuid)
+if(NOT APPLE)
+  pkg_search_module(UUID REQUIRED uuid)
+endif()
+
 
 nav2_package()
 
